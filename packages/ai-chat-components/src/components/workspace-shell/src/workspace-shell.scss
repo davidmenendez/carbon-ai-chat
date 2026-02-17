@@ -22,6 +22,7 @@ $css--plex: true !default;
   @include type.type-style("body-01");
 
   display: grid;
+  overflow: auto;
   /* stylelint-disable-next-line declaration-no-important */
   box-sizing: border-box !important;
   border: solid rem(1px) theme.$chat-bubble-border;
