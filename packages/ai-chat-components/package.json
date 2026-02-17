@@ -44,6 +44,7 @@
     "test:web-components": "web-test-runner \"src/components/**/*.test.ts\" --node-resolve"
   },
   "dependencies": {
+    "@carbon/ibm-products-web-components": "^0.32.0",
     "@carbon/icon-helpers": "^10.47.0",
     "@carbon/icons": "^11.53.0",
     "@carbon/styles": "^1.98.0",

@@ -137,8 +137,12 @@ function WorkspaceWriteableElementExample({
 
   return (
     <WorkspaceShell>
-      <Toolbar slot="toolbar" actions={toolbarActions} overflow>
-        <div slot="title">Optimizing excess inventory</div>
+      <Toolbar
+        slot="toolbar"
+        actions={toolbarActions}
+        overflow
+        titleText="Optimizing excess inventory"
+      >
         <div slot="decorator">
           <AILabel size="2xs" autoAlign>
             <AILabelContent>
