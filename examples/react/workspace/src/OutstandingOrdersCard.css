@@ -1,0 +1,54 @@
+/*
+ *  Copyright IBM Corp. 2026
+ *
+ *  This source code is licensed under the Apache-2.0 license found in the
+ *  LICENSE file in the root directory of this source tree.
+ *
+ *  @license
+ */
+
+/* Styles for card body content */
+.outstanding-orders-card-body {
+  padding: 1rem;
+}
+
+.outstanding-orders-card-summary {
+  color: #161616;
+  font-weight: 500;
+  margin-block-end: 1rem;
+}
+
+.outstanding-orders-card-preview {
+  padding: 0.75rem;
+  border-radius: 4px;
+  background: #f4f4f4;
+  margin-block-end: 1rem;
+}
+
+.preview-row {
+  display: flex;
+  justify-content: space-between;
+  margin-block-end: 0.5rem;
+}
+
+.preview-row:last-child {
+  margin-block-end: 0;
+}
+
+.preview-label {
+  color: #525252;
+  font-weight: 600;
+}
+
+.preview-value {
+  color: #161616;
+}
+
+.outstanding-orders-card-hint {
+  margin: 0;
+  color: #525252;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+/* Made with Bob */

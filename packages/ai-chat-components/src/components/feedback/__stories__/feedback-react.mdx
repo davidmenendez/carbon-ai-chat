@@ -1,0 +1,151 @@
+import { ArgTypes, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as FeedbackReactStories from "./feedback-react.stories.jsx";
+
+<Meta of={FeedbackReactStories} parameters={{ previewTabs: { "storybook/docs/panel": { title: "Overview" } } }} />
+
+# Feedback
+
+[Source code](https://github.com/carbon-design-system/carbon-ai-chat/tree/main/packages/ai-chat-components/src/components/feedback) &nbsp;|&nbsp; [Feedback](https://github.com/carbon-design-system/carbon-ai-chat/issues)
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Component API](#component-api)
+- [Feedback](#feedback)
+
+
+## Overview
+
+Use `<Feedback>` to collect structured feedback on AI responses in React. It supports categories, optional freeform text, prompt copy, and read-only display when feedback has already been submitted.
+
+**Note:** The `showTextArea` and `showBody` props default to `false`. You must explicitly set them to `true` to enable the text area and body text display.
+
+### Getting started
+
+Here's a quick example to get you started.
+
+```jsx
+import Feedback from "@carbon/ai-chat-components/es/react/feedback.js";
+
+function FeedbackExample() {
+  return (
+    <Feedback
+      isOpen
+      title="Provide feedback"
+      body="Help us improve this response"
+      categories={["Accurate", "Helpful", "Too verbose", "Inappropriate"]}
+      secondaryLabel="Cancel"
+      primaryLabel="Submit"
+      showTextArea={true}
+      showBody={true}
+      onSubmit={(event) => {
+        const { text, selectedCategories } = event.detail;
+        console.log("Feedback submitted:", { text, selectedCategories });
+      }}
+      onClose={() => console.log("Feedback closed")}
+    />
+  );
+}
+```
+
+## Component API
+
+<ArgTypes of={FeedbackReactStories.Default} />
+
+### Usage Patterns
+
+#### Collecting Negative Feedback
+
+```jsx
+function NegativeFeedbackPanel() {
+  return (
+    <Feedback
+      isOpen
+      title="What went wrong?"
+      categories={[
+        "Inaccurate",
+        "Unhelpful",
+        "Inappropriate",
+      ]}
+      onSubmit={(event) => {
+        const details = event.detail;
+        console.log("Feedback:", details);
+        // { text: "...", selectedCategories: ["Inaccurate"] }
+      }}
+    />
+  );
+}
+```
+
+#### Collecting Positive Feedback
+
+```jsx
+function PositiveFeedbackPanel() {
+  return (
+    <Feedback
+      isOpen
+      title="What did you like?"
+      categories={[
+        "Accurate",
+        "Helpful",
+        "Well-formatted",
+      ]}
+      onSubmit={(event) => {
+        console.log("Feedback:", event.detail);
+      }}
+    />
+  );
+}
+```
+
+#### Displaying Submitted Feedback
+
+```jsx
+function ReadOnlyFeedbackPanel() {
+  return (
+<Feedback
+  isOpen
+  isReadonly
+  title="Submitted feedback"
+  initialValues={{
+        text: "The response was very helpful!",
+        selectedCategories: ["Accurate", "Helpful"],
+      }}
+    />
+  );
+}
+```
+
+### Customization
+
+#### Labels
+
+All button labels and text can be customized:
+
+- `title`: Panel title
+- `body`: Instructions for the user
+- `placeholder`: Text area placeholder
+- `secondaryLabel`: Secondary button text
+- `primaryLabel`: Primary button text
+
+#### Optional Elements
+
+Control visibility of UI elements:
+
+- `showBody`: Show/hide the instruction text
+- `showTextArea`: Show/hide the detailed feedback text area
+
+#### Legal Disclaimer
+
+Add a legal notice at the bottom of the panel using markdown:
+
+```jsx
+<Feedback
+  disclaimer="By submitting feedback, you agree to our [Privacy Policy](https://example.com/privacy)."
+/>
+```
+
+## Feedback
+
+Open an issue at https://github.com/carbon-design-system/carbon-ai-chat/issues to provide feedback or request changes.

@@ -1,0 +1,153 @@
+/*
+ *  Copyright IBM Corp. 2025
+ *
+ *  This source code is licensed under the Apache-2.0 license found in the
+ *  LICENSE file in the root directory of this source tree.
+ *
+ *  @license
+ */
+
+import { Dropdown, DropdownItem } from "../../../components/carbon/Dropdown";
+import cx from "classnames";
+import React, { useRef, useState } from "react";
+
+import { HasServiceManager } from "../../../hocs/withServiceManager";
+import { useCounter } from "../../../hooks/useCounter";
+import HasLanguagePack from "../../../../types/utilities/HasLanguagePack";
+import { doScrollElementIntoView } from "../../../utils/domUtils";
+import Metablock from "../util/Metablock";
+import {
+  MessageInput,
+  SingleOption,
+} from "../../../../types/messaging/Messages";
+import { DROPDOWN_SIZE } from "@carbon/web-components/es/components/dropdown/defs.js";
+
+interface OnChangeData<ItemType> {
+  selectedItem: ItemType | null;
+}
+
+type SelectionEvent = CustomEvent<{
+  item: { textContent: string; value: string };
+}>;
+
+interface SelectProps extends HasLanguagePack, HasServiceManager {
+  title: string;
+  description: string;
+  options: SingleOption[];
+  value: { input: MessageInput };
+  onChange: (data: OnChangeData<SingleOption>) => void;
+
+  /**
+   * Indicates if any user input controls should be shown but disabled. This value comes in as both a component prop and
+   * state value where the inputs are hidden if either is true.
+   */
+  disableUserInputs: boolean;
+
+  /**
+   * Indicates if HTML should be removed from text before converting Markdown to HTML.
+   * This is used to sanitize data coming from a human agent.
+   */
+  removeHTML?: boolean;
+}
+
+function SelectComponent(props: SelectProps) {
+  const {
+    title,
+    description,
+    options,
+    onChange,
+    languagePack,
+    disableUserInputs,
+    serviceManager,
+    removeHTML,
+  } = props;
+
+  const [isBeingOpened, setIsBeingOpened] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(undefined);
+  const pendingSelectionRef = useRef<SingleOption | null>(null);
+  const hasSentRef = useRef<boolean>(false);
+  // Generate a unique ID that we can use for each instance of our dropdowns.
+  const counter = useCounter();
+  const id = `${counter}${serviceManager.namespace.suffix}`;
+
+  const handleToggle = (e: CustomEvent<{ open: boolean }>) => {
+    const isOpen = e.detail.open;
+
+    if (isOpen) {
+      // Reset the sent flag when opening the dropdown
+      hasSentRef.current = false;
+      setIsBeingOpened(true);
+
+      requestAnimationFrame(() => {
+        if (rootRef.current) {
+          doScrollElementIntoView(rootRef.current, true);
+        }
+        setIsBeingOpened(false);
+      });
+    } else if (pendingSelectionRef.current && !hasSentRef.current) {
+      // Dropdown has closed and we have a pending selection that hasn't been sent yet
+      // This ensures autoscroll calculations happen after the dropdown is fully closed
+      // The hasSentRef guard prevents double-send when the Carbon dropdown toggle event fires multiple times
+      hasSentRef.current = true;
+      onChange({
+        selectedItem: pendingSelectionRef.current,
+      });
+      pendingSelectionRef.current = null;
+    }
+  };
+
+  const handleSelected = (e: SelectionEvent) => {
+    const label = e.detail.item.textContent;
+    const text = e.detail.item.value;
+
+    // Store the selection but don't send immediately
+    // Wait for the dropdown to close (handleToggle will send it)
+    // Reset the sent flag when a new selection is made
+    hasSentRef.current = false;
+    pendingSelectionRef.current = {
+      label,
+      value: { input: { text } },
+    };
+  };
+
+  return (
+    <div ref={rootRef}>
+      <Metablock
+        title={title}
+        description={description}
+        id={`cds-aichat--select-uuid-${id}-label`}
+        removeHTML={removeHTML}
+      />
+      <div
+        className={cx("cds-aichat--select-holder", {
+          "cds-aichat--custom-select-temporary-padding": isBeingOpened,
+        })}
+      >
+        <Dropdown
+          id={`cds-aichat--select-uuid-${id}`}
+          label={languagePack.options_select}
+          title-text={languagePack.options_select}
+          hideLabel
+          size={DROPDOWN_SIZE.MEDIUM}
+          aria-label={
+            disableUserInputs ? languagePack.options_ariaOptionsDisabled : title
+          }
+          disabled={disableUserInputs}
+          onToggled={handleToggle}
+          onSelected={handleSelected}
+        >
+          {options.map((option) => (
+            <DropdownItem
+              value={option.value.input.text}
+              key={option.value.input.text}
+            >
+              {option.label}
+            </DropdownItem>
+          ))}
+        </Dropdown>
+      </div>
+    </div>
+  );
+}
+
+export default SelectComponent;

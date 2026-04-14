@@ -1,0 +1,337 @@
+/*
+ *  Copyright IBM Corp. 2025
+ *
+ *  This source code is licensed under the Apache-2.0 license found in the
+ *  LICENSE file in the root directory of this source tree.
+ */
+
+/* ============================================================================
+   IMPORTS & SETUP
+   ============================================================================ */
+
+@use "sass:meta";
+@use "@carbon/styles/scss/themes";
+@use "@carbon/layout";
+@use "@carbon/styles/scss/theme";
+
+@use "@carbon/styles/scss/motion";
+@use "@carbon/styles/scss/type";
+@use "@carbon/styles/scss/utilities/ai-gradient" as *;
+@use "../globals/scss/chat-theme";
+@use "../globals/scss/chat-float-layout";
+
+@use "./components/imports" as components;
+@use "./components-legacy/imports" as legacyComponents;
+
+/*
+Chat custom css properties
+*/
+
+@use "@carbon/colors";
+@use "@carbon/styles/scss/components/button/tokens";
+
+// Import shared tokens from @carbon/ai-chat-components
+// These are the public configurable tokens that are shared across both packages
+@use "@carbon/ai-chat-components/scss/custom-properties" as shared-tokens;
+
+.cds-aichat--container--render {
+  box-sizing: border-box;
+  block-size: 100%;
+  color: theme.$text-primary;
+  inline-size: 100%;
+
+  /* **************************************************************************************************************** */
+
+  /* Shared tokens from @carbon/ai-chat-components */
+  /* These are imported and will be available as CSS custom properties */
+  /* See @carbon/ai-chat-components/scss/_custom-properties.scss for the full list */
+
+  /* **************************************************************************************************************** */
+
+  /* Container-specific properties (ChatContainer floating widget) */
+
+  /* Application sizing and positioning */
+  --cds-aichat-max-height: 640px;
+
+  /* WCAG 2.1 states that the widget must be usable at 320x256 (or the equivalent from zoom happening) https://www.w3.org/WAI/WCAG21/Understanding/reflow.html
+  We make sure the min-height at least 150px (to show at least the header/footer and one line of text) and is the lower of 256px minus the spacing from the bottom of the view port or 100vh - the bottom position. */
+  --cds-aichat-min-height: max(
+    150px,
+    calc(min(256px, 100vh) - var(--cds-aichat-bottom-position))
+  );
+
+  /* Container positioning */
+  --cds-aichat-bottom-position: #{layout.$spacing-09};
+  --cds-aichat-right-position: #{layout.$spacing-07};
+  --cds-aichat-top-position: auto;
+  --cds-aichat-left-position: auto;
+
+  /* Container sizing */
+  /* The smaller of 380px or the available width of the screen. This is to account for zoom levels pushing us to 320px. */
+  --cds-aichat-width: min(380px, var(--cds-aichat-max-width));
+  --cds-aichat-height: calc(100vh - (2 * #{layout.$spacing-07}));
+
+  /* Container z-index */
+  --cds-aichat-z-index: 99999;
+
+  /* **************************************************************************************************************** */
+
+  /* Launcher properties (ChatContainer-specific) */
+  /* These properties control the floating launcher button appearance and behavior */
+
+  /* Launcher sizing and positioning */
+  --cds-aichat-launcher-default-size: 56px;
+  --cds-aichat-launcher-position-bottom: #{layout.$spacing-09};
+  --cds-aichat-launcher-position-right: #{layout.$spacing-07};
+  --cds-aichat-launcher-extended-width: 280px;
+
+  /* Launcher colors */
+  --cds-aichat-launcher-color-background: #{tokens.$button-primary};
+  --cds-aichat-launcher-color-avatar: #{theme.$text-on-color};
+  --cds-aichat-launcher-color-focus-border: #{theme.$text-on-color};
+  --cds-aichat-launcher-mobile-color-text: #{theme.$text-on-color};
+
+  /* Unread indicator colors */
+  --cds-aichat-unread-indicator-color-background: #{theme.$support-error};
+  --cds-aichat-unread-indicator-color-text: #{theme.$text-on-color};
+}
+
+.cds-aichat--container--render .cds-aichat--widget--rounded {
+  --cds-aichat-border-radius: #{layout.$spacing-03};
+}
+
+.cds-aichat--container--render.cds-aichat--is-phone {
+  /* Fallbacks for older browsers */
+  --cds-aichat-width: calc(100vw - 4px);
+  --cds-aichat-height: calc(100vh - 4px);
+  --cds-aichat-left-position: 2;
+  --cds-aichat-top-position: 2;
+  --cds-aichat-max-width: auto;
+  --cds-aichat-max-height: auto;
+  --cds-aichat-min-height: auto;
+  --cds-aichat-right-position: auto;
+}
+
+@supports (height: 100dvh) {
+  .cds-aichat--container--render.cds-aichat--is-phone {
+    --cds-aichat-width: calc(100dvw - 4px);
+    --cds-aichat-height: calc(100dvh - 4px);
+  }
+}
+
+/* ============================================================================
+   CARBON THEME INTEGRATION
+   Carbon Design System theme classes
+   ============================================================================ */
+
+.cds--white {
+  @include theme.theme(themes.$white);
+}
+
+.cds--g10 {
+  @include theme.theme(themes.$g10);
+}
+
+.cds--g90 {
+  @include theme.theme(themes.$g90);
+}
+
+.cds--g100 {
+  @include theme.theme(themes.$g100);
+}
+
+/* ============================================================================
+   GLOBAL COMPONENT OVERRIDES
+   Styles for Carbon components used within the chat
+   ============================================================================ */
+
+.cds-aichat--dark,
+.cds--g90,
+.cds--g100 {
+  scrollbar-color: theme.$layer-03 theme.$layer-01;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   Reusable utility classes for common patterns
+   ============================================================================ */
+
+// Mixin for elements that should expand to fit their container
+@mixin expand-to-fit {
+  block-size: 100%;
+  inline-size: 100%;
+  max-block-size: 100%;
+  max-inline-size: 100%;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+// Mixin for workspace panel slotted content with additional constraints
+@mixin workspace-panel-slotted {
+  block-size: 100%;
+  max-block-size: 100%;
+}
+
+.cds-aichat--widget--expand-to-fit {
+  @include expand-to-fit;
+}
+
+.cds-aichat--workspace-writeable-element {
+  ::slotted(*) {
+    @include workspace-panel-slotted;
+  }
+}
+
+.cds-aichat--history-writeable-element {
+  ::slotted(*) {
+    display: block;
+    block-size: 100%;
+  }
+}
+
+.cds-aichat--history-panel__content-container {
+  block-size: 100%;
+
+  ::slotted(*) {
+    --history-shell-border: none;
+
+    block-size: 100%;
+  }
+}
+
+.cds-aichat--hidden {
+  display: none;
+}
+
+.cds-aichat--widget__break-word {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
+}
+
+.cds-aichat--widget__text-ellipsis {
+  overflow: hidden;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-wrap: break-word;
+}
+
+/* ============================================================================
+   CONTAINER & ACCESSIBILITY
+   Main container wrapper and accessibility features
+   ============================================================================ */
+
+.cds-aichat--container--render[dir="rtl"] {
+  direction: rtl;
+}
+
+/* ARIA live region for screen reader announcements */
+.cds-aichat--container--render > div > div[role="log"] {
+  position: absolute;
+  overflow: hidden;
+  block-size: 1px;
+  inline-size: 1px;
+  inset-inline-start: -10000px;
+}
+
+/* ============================================================================
+   WIDGET - BASE STYLES
+   Core widget container styles and theme variants
+   ============================================================================ */
+
+.cds-aichat--widget {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  block-size: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  inline-size: 100%;
+  -webkit-tap-highlight-color: rgb(0 0 0 / 0%);
+  text-rendering: optimizelegibility;
+  visibility: visible;
+  @include type.type-style("body-01");
+}
+
+/* ============================================================================
+   FLOAT POSITIONING
+   Floating widget positioning and animations (following @carbon/styles pattern)
+   ============================================================================ */
+
+@include chat-float-layout.float-positioning;
+
+/* ============================================================================
+   CHAT CONTAINER
+   Main inner chat container and theme variants
+   ============================================================================ */
+
+.cds-aichat {
+  display: flex;
+  box-sizing: border-box;
+  flex: 1;
+  flex-direction: column;
+  align-content: stretch;
+  align-items: stretch;
+  border-radius: 0;
+  margin: 0;
+  background-color: theme.$chat-shell-background;
+  block-size: 100%;
+  color: theme.$text-primary;
+  inline-size: 100%;
+  text-align: start;
+}
+
+/* ============================================================================
+   RTL & INTERNATIONALIZATION
+   Right-to-left language support and icon handling
+   ============================================================================ */
+
+.cds-aichat--container--render[dir="rtl"]
+  .cds-aichat--direction-has-reversible-svg
+  svg {
+  transform: scaleX(-1);
+}
+
+.cds-aichat--container--render[dir="rtl"]
+  .cds-aichat--direction-has-reversible-svg.cds-aichat--reverse-icon
+  svg {
+  transform: scaleX(1);
+}
+
+/* ============================================================================
+   MISCELLANEOUS
+   Other utility styles and configurations
+   ============================================================================ */
+
+.cds-aichat--widget__layer {
+  block-size: 100%;
+  inline-size: 100%;
+}
+
+.cds-aichat--widget__layer--hidden {
+  display: none;
+}
+
+.cds-aichat--widget--max-width {
+  --cds-aichat-border-radius: 0;
+}
+
+.cds-aichat--panel-header-content {
+  margin: auto;
+  max-inline-size: chat-theme.$messages-max-width;
+}
+
+.cds-aichat--panel-header {
+  border-block-end: 1px solid theme.$border-subtle-01;
+}
+
+.cds-aichat--panel-header--full-width {
+  .cds-aichat--panel-header-content {
+    max-inline-size: 100%;
+  }
+}
+
+// Made with Bob
